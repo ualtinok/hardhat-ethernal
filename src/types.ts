@@ -1,5 +1,15 @@
 import { BlockWithTransactions } from '@ethersproject/abstract-provider';
 
+export type ProcessedTraceStep = {
+    op: string;
+    contractHashedBytecode: string;
+    address: string | null,
+    input?: string;
+    depth: number;
+    codeAddress?: string;
+    returnData?: string;
+}
+
 export type Artifact = {
     contractName: string;
     abi: any;

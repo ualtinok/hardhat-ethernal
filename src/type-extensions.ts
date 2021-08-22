@@ -38,7 +38,7 @@ declare module "hardhat/types/runtime" {
     ethernalWorkspace: string;
     ethernal: {
         startListening:() => Promise<void>;
-        traceHandler:(trace: MessageTraceStep, isMessageTraceFromACall: Boolean) => Promise<void>;
+        traceHandler:(trace: MessageTraceStep, isMessageTraceFromACall: Boolean) => void;
         push: (contract: ContractInput) => Promise<void>;
     }
   }

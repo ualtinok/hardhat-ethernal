@@ -1,7 +1,7 @@
 import * as fs from "fs-extra";
 import { sep } from "path";
 import { HardhatRuntimeEnvironment, ResolvedFile, Artifacts } from "hardhat/types";
-import { ContractInput, EthernalContract, Artifact, SyncedBlock } from './types';
+import { ContractInput, EthernalContract, Artifact, SyncedBlock, ProcessedTraceStep } from './types';
 import { BlockWithTransactions, TransactionResponse, TransactionReceipt } from '@ethersproject/abstract-provider';
 import { MessageTraceStep, isCreateTrace, isCallTrace, CreateMessageTrace, CallMessageTrace, isEvmStep, isPrecompileTrace } from "hardhat/internal/hardhat-network/stack-traces/message-trace";
 
@@ -17,7 +17,7 @@ export class Ethernal {
     public env: HardhatRuntimeEnvironment;
     private targetContract!: ContractInput;
     private db: any;
-    private trace: any[];
+    private trace: ProcessedTraceStep[];
 
     constructor(hre: HardhatRuntimeEnvironment) {
         this.env = hre;
@@ -85,37 +85,38 @@ export class Ethernal {
         logger(`Updated artifacts for contract ${contract.name} (${contract.address}).${dependenciesString}`);
     }
 
-    public async traceHandler(trace: MessageTraceStep, isMessageTraceFromACall: Boolean) {
+    public traceHandler(trace: MessageTraceStep, isMessageTraceFromACall: Boolean) {
         if (!this.db.userId) { return; }
         if (this.db.workspace.advancedOptions?.tracing != 'hardhat') return;
 
         logger('Tracing transaction...');
-        let stepper = async (step: MessageTraceStep) => {
+        let stepper = (step: MessageTraceStep) => {
             if (isEvmStep(step) || isPrecompileTrace(step))
                 return;
             if (isCreateTrace(step) && step.deployedContract) {
                 const address = `0x${step.deployedContract.toString('hex')}`;
-                const bytecode = await this.env.ethers.provider.getCode(address);
-                this.trace.push({
+                const bytecode = `0x${step.code.toString('hex')}`;
+                this.trace.push(this.sanitize({
                     op: 'CREATE2',
                     contractHashedBytecode: this.env.ethers.utils.keccak256(bytecode),
                     address: address,
                     depth: step.depth
-                });
+                }));
             }
             if (isCallTrace(step)) {
                 const address = `0x${step.address.toString('hex')}`;
-                const bytecode = await this.env.ethers.provider.getCode(address);
-                this.trace.push({
+                const bytecode = `0x${step.code.toString('hex')}`;
+                this.trace.push(this.sanitize({
                     op: 'CALL',
                     contractHashedBytecode: this.env.ethers.utils.keccak256(bytecode),
-                    address: address,
+                    address: `0x${step.codeAddress.toString('hex')}`,
                     input: step.calldata.toString('hex'),
-                    depth: step.depth
-                });
+                    depth: step.depth,
+                    returnData: step.returnData.toString('hex')
+                }));
             }
             for (var i = 0; i < step.steps.length; i++) {
-                await stepper(step.steps[i]);
+                stepper(step.steps[i]);
             }
         };
 
@@ -309,7 +310,7 @@ export class Ethernal {
         return res;
     }
 
-    private sanitize(obj: TransactionResponse | TransactionReceipt | BlockWithTransactions) {
+    private sanitize(obj: TransactionResponse | TransactionReceipt | BlockWithTransactions | ProcessedTraceStep) {
         var res: any = {};
         res = Object.fromEntries(
             Object.entries(obj)
