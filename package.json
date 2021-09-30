@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "@firebase/firestore-types": "^2.2.0",
-    "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers",
+    "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers@*",
     "configstore": "^5.0.1",
     "firebase": "^8.2.6",
     "fs-extra": "^9.1.0",
