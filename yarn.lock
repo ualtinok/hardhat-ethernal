@@ -515,10 +515,10 @@
     lodash.camelcase "^4.3.0"
     protobufjs "^6.8.6"
 
-"@nomiclabs/hardhat-ethers@npm:hardhat-deploy-ethers":
+"@nomiclabs/hardhat-ethers@npm:hardhat-deploy-ethers@*":
   version "0.3.0-beta.10"
-  resolved "https://registry.yarnpkg.com/hardhat-deploy-ethers/-/hardhat-deploy-ethers-0.3.0-beta.10.tgz#bccfcf635d380bbab3638960f6739fe4d396fc5f"
-  integrity sha512-TeyriUshRZ7XVHOjMsDtTozIrdwLf3Bw+oZRYNhXdG/eut5HeDhjUFPfRlG7TI1lSLvkcB5dt7OxOtPYKDOxTg==
+  resolved "https://registry.yarnpkg.com/hardhat-deploy-ethers/download/hardhat-deploy-ethers-0.3.0-beta.10.tgz#bccfcf635d380bbab3638960f6739fe4d396fc5f"
+  integrity sha1-vM/PY104C7qzY4lg9nOf5NOW/F8=
 
 "@protobufjs/aspromise@^1.1.1", "@protobufjs/aspromise@^1.1.2":
   version "1.1.2"
